@@ -49,6 +49,9 @@ php artisan breeze:install vue
 - In other terminal same path
 - > npm install
 - > npm run dev
+
+## Next we will implement all Needed APIs
+
 - we will modify the user model where we will verify the registeration email if
   note
 
@@ -68,16 +71,6 @@ php artisan breeze:install vue
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiAuthController;
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 Route::post('register', [ApiAuthController::class, 'register']);
 Route::post('login', [ApiAuthController::class, 'login']);
@@ -196,3 +189,4 @@ class ApiAuthController extends Controller
 }
 
 ```
+- 
