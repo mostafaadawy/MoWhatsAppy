@@ -49,3 +49,150 @@ php artisan breeze:install vue
 - In other terminal same path
 - > npm install
 - > npm run dev
+- we will modify the user model where we will verify the registeration email if
+  note
+
+```php
+   protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+```
+
+- API Middleware: Laravel Breeze automatically includes the auth:sanctum
+  middleware for API routes. Ensure your API routes are protected by this
+  middleware. if not exists
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiAuthController;
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+Route::post('register', [ApiAuthController::class, 'register']);
+Route::post('login', [ApiAuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Your other protected API routes here
+});
+
+```
+
+- Edit kernel in http to make api include email verfication class middleware
+
+```php
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
+            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            // \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        ],
+    ];
+```
+
+- for now we will ignore email verfication for simplisty but in the end of
+  application will be activated
+- if sanctum is not installed
+
+```sh
+composer require laravel/sanctum
+php artisan sanctum:install
+```
+
+- Create API Controller: Create a new controller for handling API registration
+  and login
+- > php artisan make:controller ApiAuthController
+
+```php
+<?php
+namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class ApiAuthController extends Controller
+{
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Send email verification notification if needed
+
+        return response()->json(['message' => 'User registered successfully'], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        if (!$user->email_verified_at) {
+            return response()->json(['error' => 'Email not verified'], 401);
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+        ]);
+    }
+}
+
+```
