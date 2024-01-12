@@ -49,5 +49,3 @@ php artisan breeze:install vue
 - In other terminal same path
 - > npm install
 - > npm run dev
-
-## Fend
