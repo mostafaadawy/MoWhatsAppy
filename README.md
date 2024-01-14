@@ -208,43 +208,24 @@ use App\Models\User;
 use Illuminate\Http\Response;
 class UsersApisController extends Controller
 {
-    public function getUserDetails($userId)
+    public function getUserDetails()
     {
-        $user = User::find($userId);
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        return response()->json($user);
     }
 
     public function getAllUsers()
     {
-        $users = User::all();
 
-        return response()->json($users);
     }
 
-    public function checkIfUserExists($email)
+    public function checkIfUserExists($search)
     {
-        $user = User::where('email', $email)->first();
 
-        return response()->json(['exists' => !!$user]);
     }
 
     public function saveUserDetails(Request $request, $userId)
     {
-        $user = User::find($userId);
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        // Update user details based on the request data
-        $user->update($request->all());
-
-        return response()->json(['message' => 'User details updated successfully']);
     }
 }
 ```
@@ -329,3 +310,104 @@ class UserSeeder extends Seeder
 
 - now using postman or thunder to test the apis for the end points of the
   `UsersApisController`
+- for the first endPoint there were many modifications
+  - the guard for the api was not made by default so we need to add it in `auth`
+    in `config`
+
+```php
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+    ],
+```
+
+- The `UserApisController` after creating the end points
+
+```php
+<?php
+
+namespace App\Http\Controllers\APIs;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+class UsersApisController extends Controller
+{
+    public function getUserDetails()
+    {
+        // Retrieve the currently authenticated user
+        $user = Auth::user();
+
+        if (!$user) {
+            // Handle case where user is not authenticated
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Do something with the user details
+        // ...
+
+        return response()->json(['data' => $user]);
+    }
+
+    public function getAllUsers()
+    {
+        $users = User::all();
+
+        return response()->json($users);
+    }
+
+    public function checkIfUserExists($search)
+    {
+        $users = User::where('email', 'like', '%' . $search . '%')
+            ->orWhere('firstName', 'like', '%' . $search . '%')
+            ->orWhere('lastName', 'like', '%' . $search . '%')
+           ->get();
+        // $user = User::where('email', 'like', '%' . $search . '%')
+        //     ->orWhere('firstName', 'like', '%' . $search . '%')
+        //     ->orWhere('lastName', 'like', '%' . $search . '%')
+        //    ->first();
+
+        // return response()->json(['exists' => !!$user]);
+        return response()->json(['data' => $users]);
+    }
+
+    public function saveUserDetails(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+
+        if (!$user) {
+            // Handle case where user is not authenticated
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Update user details based on the request data
+        $user->update($request->has('password') ? $request->all() : $request->except(['password']));
+
+
+        return response()->json(['message' => 'User details updated successfully']);
+    }
+}
+
+```
+
+and the routes will be
+
+```php
+Route::middleware('auth:sanctum')->group(function () {
+    // Your other protected API routes here
+// Route::post('getUserDetails/{userId}', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
+Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
+Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('getAllUsers');
+Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
+Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
+});
+```

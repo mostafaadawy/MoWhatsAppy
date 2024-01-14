@@ -32,23 +32,33 @@ class UsersApisController extends Controller
         return response()->json($users);
     }
 
-    public function checkIfUserExists($email)
+    public function checkIfUserExists($search)
     {
-        $user = User::where('email', $email)->first();
+        $users = User::where('email', 'like', '%' . $search . '%')
+            ->orWhere('firstName', 'like', '%' . $search . '%')
+            ->orWhere('lastName', 'like', '%' . $search . '%')
+           ->get();
+        // $user = User::where('email', 'like', '%' . $search . '%')
+        //     ->orWhere('firstName', 'like', '%' . $search . '%')
+        //     ->orWhere('lastName', 'like', '%' . $search . '%')
+        //    ->first();
 
-        return response()->json(['exists' => !!$user]);
+        // return response()->json(['exists' => !!$user]);
+        return response()->json(['data' => $users]);
     }
 
-    public function saveUserDetails(Request $request, $userId)
+    public function saveUserDetails(Request $request)
     {
-        $user = User::find($userId);
+        $user = User::find(Auth::user()->id);
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+            // Handle case where user is not authenticated
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         // Update user details based on the request data
-        $user->update($request->all());
+        $user->update($request->has('password') ? $request->all() : $request->except(['password']));
+
 
         return response()->json(['message' => 'User details updated successfully']);
     }

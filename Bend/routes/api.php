@@ -22,4 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Your other protected API routes here
 // Route::post('getUserDetails/{userId}', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
 Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
+Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('getAllUsers');
+Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
+Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
 });
