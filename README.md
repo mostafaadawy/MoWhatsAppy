@@ -249,4 +249,6 @@ class UsersApisController extends Controller
 }
 ```
 
+- edit the field name to be two fields called firstName and lastName and
+  required modifications for that
 - create factory for users to test the end points
