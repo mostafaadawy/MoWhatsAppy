@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\ApiAuthController;
+use App\Http\Controllers\APIs\UsersApisController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,4 +20,6 @@ Route::post('login', [ApiAuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Your other protected API routes here
+// Route::post('getUserDetails/{userId}', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
+Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->name('getUserDetails');
 });

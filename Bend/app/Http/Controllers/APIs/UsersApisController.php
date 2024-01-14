@@ -6,17 +6,23 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 class UsersApisController extends Controller
 {
-    public function getUserDetails($userId)
+    public function getUserDetails()
     {
-        $user = User::find($userId);
+        // Retrieve the currently authenticated user
+        $user = Auth::user();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+            // Handle case where user is not authenticated
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return response()->json($user);
+        // Do something with the user details
+        // ...
+
+        return response()->json(['data' => $user]);
     }
 
     public function getAllUsers()

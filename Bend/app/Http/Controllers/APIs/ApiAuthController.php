@@ -55,9 +55,9 @@ class ApiAuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        if (!$user->email_verified_at) {
-            return response()->json(['error' => 'Email not verified'], 401);
-        }
+        // if (!$user->email_verified_at) {
+        //     return response()->json(['error' => 'Email not verified'], 401);
+        // }
 
         $token = $user->createToken('api-token')->plainTextToken;
 

@@ -326,3 +326,6 @@ class UserSeeder extends Seeder
 }
 
 ```
+
+- now using postman or thunder to test the apis for the end points of the
+  `UsersApisController`
