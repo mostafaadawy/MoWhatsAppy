@@ -411,3 +411,7 @@ Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUse
 Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
 });
 ```
+
+- time to create our Chat Controller , model, and migration
+- > php artisan make:model Chat -mrc
+- edit the migration to contain possible fields
