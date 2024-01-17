@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'firstName',
         'lastName',
+        'photo',
         'email',
         'password',
     ];
@@ -45,4 +46,13 @@ class User extends Authenticatable
         'updated_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function chats()
+    {
+        return $this->belongsToMany(Chat::class)->withTimestamps();
+    }
+
+    public function messages()
+    {
+        return $this->belongsToMany(Message::class)->withPivot('status')->withTimestamps();
+    }
 }
