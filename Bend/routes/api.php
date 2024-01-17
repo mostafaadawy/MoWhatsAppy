@@ -30,7 +30,6 @@ Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->
 Route::post('createChat', [ChatController::class,'createChat'])->name('createChat');
 Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
 Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
-Route::post('sendMessage', [ChatController::class,'sendMessage'])->name('sendMessage');
 Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->name('sendMessageToChat');
 
 });

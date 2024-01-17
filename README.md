@@ -439,7 +439,7 @@ so the solution will be
   according to the chat
 - messages table that will contain the message and its typeand chat_id for
   filtering
-- user_message pivot table to allow many to many relationship between users and
+- message_user pivot table to allow many to many relationship between users and
   all messages that will have the status is it delivered submitted (when user is
   the owner), read and so on
 
@@ -461,7 +461,7 @@ so the solution will be
 ```php
     public function up(): void
     {
-        Schema::create('user_message', function (Blueprint $table) {
+        Schema::create('message_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('message_id')->constrained();
@@ -620,10 +620,15 @@ Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->
 Route::post('createChat', [ChatController::class,'createChat'])->name('createChat');
 Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
 Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
-Route::post('sendMessage', [ChatController::class,'sendMessage'])->name('sendMessage');
 Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->name('sendMessageToChat');
 
 });
+```
+
+- in order to completye this step we need anothor pivot table for chat_user
+
+```php
+
 ```
 
 - > php artisan migrate:fresh --seed

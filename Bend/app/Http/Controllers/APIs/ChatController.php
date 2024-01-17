@@ -14,27 +14,29 @@ class ChatController extends Controller
         $chat = Chat::create();
 
         // Add the authenticated user to the chat
-        $user = Auth::user();
-        $chat->users()->attach($user->id);
+        $txUser = Auth::user();
+        $rxUser_id= $request->input('rxUser_id');
+        $chat->users()->attach($txUser->id);
+        $chat->users()->attach($rxUser_id);
 
         // Send a message to the chat
-        $message = $this->sendMessage($request->input('content'), $chat, $user);
+        $message = $this->sendMessage($request->input('content'), $chat, $txUser, $rxUser_id);
 
         return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
     public function sendMessageToChat(Request $request, $chatId)
     {
-        // Find the chat
-        $chat = Chat::findOrFail($chatId);
+        // // Find the chat
+        // $chat = Chat::findOrFail($chatId);
 
-        // Get the authenticated user
-        $user = Auth::user();
+        // // Get the authenticated user
+        // $user = Auth::user();
 
-        // Send a message to the chat
-        $message = $this->sendMessage($request->input('content'), $chat, $user);
+        // // Send a message to the chat
+        // $message = $this->sendMessage($request->input('content'), $chat, $user);
 
-        return response()->json(['chat' => $chat, 'message' => $message]);
+        // return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
     public function editMessage(Request $request, $messageId)
@@ -67,7 +69,7 @@ class ChatController extends Controller
     }
 
     // Helper function to create and send a message
-    private function sendMessage($content, $chat, $user)
+    private function sendMessage($content, $chat, $txUser, $rxUser_id)
     {
         $message = new Message([
             'content' => $content,
@@ -76,7 +78,8 @@ class ChatController extends Controller
 
         // Save the message to the chat and associate it with the user
         $chat->messages()->save($message);
-        $message->users()->attach($user->id, ['status' => 'delivered']);
+        $message->users()->attach($txUser->id, ['status' => 'sent']);
+        $message->users()->attach($rxUser_id, ['status' => 'waiting']);
 
         return $message;
     }
