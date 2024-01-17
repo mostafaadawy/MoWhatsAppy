@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('chat_id')->constrained()->onDelete('cascade');
             $table->string('content');
+            $table->string('ownership');
             $table->enum('type', ['text', 'photo', 'audio', 'video', 'document', 'location']);
             $table->timestamps();
         });

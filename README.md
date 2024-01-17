@@ -741,3 +741,31 @@ class ChatController extends Controller
     }
 }
 ```
+
+- we need to add special delete method to allow users to delete the message
+  permaenantly if they are the ownership or delet for themself if they are
+  receivers so we need ownership and delete status
+
+```php
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('chat_id')->constrained()->onDelete('cascade');
+            $table->string('content');
+            $table->string('ownership');
+            $table->enum('type', ['text', 'photo', 'audio', 'video', 'document', 'location']);
+            $table->timestamps();
+        });
+```
+
+```php
+    public function up(): void
+    {
+        Schema::create('message_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('message_id')->constrained()->onDelete('cascade');
+            $table->enum('status', ['sent','waiting','delivered', 'seen','deleted'])->default('delivered');
+            $table->timestamps();
+        });
+    }
+```
