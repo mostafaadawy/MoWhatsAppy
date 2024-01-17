@@ -13,10 +13,6 @@ return new class extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id');
-            $table->boolean('user1_has_viewed');
-            $table->boolean('user2_has_viewed');
-            $table->string('message');
             $table->timestamps();
         });
     }

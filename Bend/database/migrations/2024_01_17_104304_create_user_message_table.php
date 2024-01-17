@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_message', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('message_id')->constrained();
+            $table->enum('status', ['sent','delivered', 'seen'])->default('delivered');
             $table->timestamps();
         });
     }

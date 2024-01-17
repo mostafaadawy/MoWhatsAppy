@@ -455,3 +455,45 @@ so the solution will be
 - After creating chat histories with some users, user can select directly one of
   existing chats or find a new user for new chat
 - creating groups will be implemented in the second phase
+- > php artisan make:migration create_user_message_table
+- now lets build it begining by the user_message table
+
+```php
+    public function up(): void
+    {
+        Schema::create('user_message', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('message_id')->constrained();
+            $table->enum('status', ['sent','delivered', 'seen'])->default('delivered');
+            $table->timestamps();
+        });
+    }
+```
+
+- message table
+
+```php
+    public function up(): void
+    {
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('chat_id')->constrained();
+            $table->string('content');
+            $table->enum('type', ['text', 'photo', 'audio', 'video', 'document', 'location']);
+            $table->timestamps();
+        });
+    }
+```
+
+- chat table
+
+```php
+public function up(): void
+    {
+        Schema::create('chats', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
+    }
+```
