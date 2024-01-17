@@ -769,3 +769,5 @@ class ChatController extends Controller
         });
     }
 ```
+
+- also ownership is used to allow only owners of message to edit the message
