@@ -1,65 +1,82 @@
 <?php
-
-namespace App\Http\Controllers\APIs;
-use App\Http\Controllers\Controller;
 use App\Models\Chat;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 class ChatController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function createChat(Request $request)
     {
-        //
+        // Create a new chat
+        $chat = Chat::create();
+
+        // Add the authenticated user to the chat
+        $user = Auth::user();
+        $chat->users()->attach($user->id);
+
+        // Send a message to the chat
+        $message = $this->sendMessage($request->input('content'), $chat, $user);
+
+        return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function sendMessageToChat(Request $request, $chatId)
     {
-        //
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
+
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Send a message to the chat
+        $message = $this->sendMessage($request->input('content'), $chat, $user);
+
+        return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function editMessage(Request $request, $messageId)
     {
-        //
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('update', $message);
+
+        // Update the message content
+        $message->content = $request->input('content');
+        $message->save();
+
+        return response()->json(['message' => $message]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Chat $chat)
+    public function deleteMessage($messageId)
     {
-        //
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('delete', $message);
+
+        // Delete the message
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully']);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Chat $chat)
+    // Helper function to create and send a message
+    private function sendMessage($content, $chat, $user)
     {
-        //
-    }
+        $message = new Message([
+            'content' => $content,
+            'type' => 'text', // Assuming it's a text message
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Chat $chat)
-    {
-        //
-    }
+        // Save the message to the chat and associate it with the user
+        $chat->messages()->save($message);
+        $message->users()->attach($user->id, ['status' => 'delivered']);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Chat $chat)
-    {
-        //
+        return $message;
     }
 }
