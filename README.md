@@ -625,3 +625,6 @@ Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->n
 
 });
 ```
+
+- > php artisan migrate:fresh --seed
+-
