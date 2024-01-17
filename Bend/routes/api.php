@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\ApiAuthController;
 use App\Http\Controllers\APIs\UsersApisController;
+use App\Http\Controllers\APIs\ChatController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,4 +26,11 @@ Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->nam
 Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('getAllUsers');
 Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
 Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
+//chat routes
+Route::post('createChat', [ChatController::class,'createChat'])->name('createChat');
+Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
+Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
+Route::post('sendMessage', [ChatController::class,'sendMessage'])->name('sendMessage');
+Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->name('sendMessageToChat');
+
 });

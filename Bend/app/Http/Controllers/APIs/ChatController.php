@@ -1,4 +1,5 @@
 <?php
+namespace App\Http\Controllers\APIs;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
