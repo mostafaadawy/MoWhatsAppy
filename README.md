@@ -616,13 +616,18 @@ Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->nam
 Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('getAllUsers');
 Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
 Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
-//chat routes
-Route::post('createChat', [ChatController::class,'createChat'])->name('createChat');
-Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
-Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
-Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->name('sendMessageToChat');
-
+// Create a new chat and add message
+Route::post('createChatSendMessage', [ChatController::class,'createChatSendMessage'])->name('createChatSendMessage');
+// Send a message to an existing chat
+Route::post('sendMessageToExistingChat', [ChatController::class,'sendMessageToExistingChat'])->name('sendMessageToExistingChat');
+// Edit a message
+Route::put('editMessage/{messageId}', [ChatController::class,'editMessage'])->name('editMessage');
+// Delete a message
+Route::delete('deleteMessage/{messageId}', [ChatController::class, 'deleteMessage'])->name('deleteMessage');
+// Delete a chat along with its messages
+Route::delete('deleteChat/{chatId}', [ChatController::class, 'deleteChat'])->name('deleteChat');
 });
+
 ```
 
 - in order to completye this step we need anothor pivot table for chat_user
@@ -633,3 +638,106 @@ Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->n
 
 - > php artisan migrate:fresh --seed
 - do not forget to add `->onDelete('cascade');` to any forign keys
+- add celete chat to chat controller so chayt controller will look like
+
+```php
+<?php
+namespace App\Http\Controllers\APIs;
+use App\Models\Chat;
+use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+class ChatController extends Controller
+{
+    public function createChatSendMessage(Request $request)
+    {
+        // Create a new chat
+        $chat = Chat::create();
+
+        // Add the authenticated user to the chat
+        $txUser = Auth::user();
+        $rxUser_id= $request->input('rxUser_id');
+        $chat->users()->attach($txUser->id);
+        $chat->users()->attach($rxUser_id);
+
+        // Send a message to the chat
+        $message = $this->sendMessage($request->input('content'), $chat, $txUser, $rxUser_id);
+
+        return response()->json(['chat' => $chat, 'message' => $message]);
+    }
+
+    public function sendMessageToExistingChat(Request $request, $chatId)
+    {
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
+
+        // Get the authenticated user
+        $txUser = Auth::user();
+        $rxUser_id= $request->input('rxUser_id');
+        $chat->users()->attach($txUser->id);
+        $chat->users()->attach($rxUser_id);
+        // Send a message to the chat
+        $message = $this->sendMessage($request->input('content'), $chat, $txUser, $rxUser_id);
+
+        return response()->json(['chat' => $chat, 'message' => $message]);
+    }
+
+    public function editMessage(Request $request, $messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('update', $message);
+
+        // Update the message content
+        $message->content = $request->input('content');
+        $message->save();
+
+        return response()->json(['message' => $message]);
+    }
+
+    public function deleteMessage($messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('delete', $message);
+
+        // Delete the message
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully']);
+    }
+
+    // Helper function to create and send a message
+    private function sendMessage($content, $chat, $txUser, $rxUser_id)
+    {
+        $message = new Message([
+            'content' => $content,
+            'type' => 'text', // Assuming it's a text message
+        ]);
+
+        // Save the message to the chat and associate it with the user
+        $chat->messages()->save($message);
+        $message->users()->attach($txUser->id, ['status' => 'sent']);
+        $message->users()->attach($rxUser_id, ['status' => 'waiting']);
+
+        return $message;
+    }
+    public function deleteChat($chatId)
+    {
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
+
+        // Delete the chat along with its messages
+        $chat->messages()->delete();
+        $chat->delete();
+
+        return response()->json(['message' => 'Chat and messages deleted successfully']);
+    }
+}
+```

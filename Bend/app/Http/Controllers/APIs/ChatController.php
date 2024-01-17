@@ -85,5 +85,15 @@ class ChatController extends Controller
 
         return $message;
     }
+    public function deleteChat($chatId)
+    {
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
 
+        // Delete the chat along with its messages
+        $chat->messages()->delete();
+        $chat->delete();
+
+        return response()->json(['message' => 'Chat and messages deleted successfully']);
+    }
 }

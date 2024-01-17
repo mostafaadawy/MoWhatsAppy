@@ -26,10 +26,14 @@ Route::get('getUserDetails', [UsersApisController::class,'getUserDetails'])->nam
 Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('getAllUsers');
 Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
 Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
-//chat routes
+// Create a new chat and add message
 Route::post('createChatSendMessage', [ChatController::class,'createChatSendMessage'])->name('createChatSendMessage');
-Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
-Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
+// Send a message to an existing chat
 Route::post('sendMessageToExistingChat', [ChatController::class,'sendMessageToExistingChat'])->name('sendMessageToExistingChat');
-
+// Edit a message
+Route::put('editMessage/{messageId}', [ChatController::class,'editMessage'])->name('editMessage');
+// Delete a message
+Route::delete('deleteMessage/{messageId}', [ChatController::class, 'deleteMessage'])->name('deleteMessage');
+// Delete a chat along with its messages
+Route::delete('deleteChat/{chatId}', [ChatController::class, 'deleteChat'])->name('deleteChat');
 });
