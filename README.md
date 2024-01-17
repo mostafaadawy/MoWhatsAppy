@@ -415,3 +415,43 @@ Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->
 - time to create our Chat Controller , model, and migration
 - > php artisan make:model Chat -mrc
 - edit the migration to contain possible fields
+
+## Creating the chat actually is not that easy
+
+there are important consderations that we have to consider such as every user
+may have a chat and every chat may need a lot of meessages and each message has
+status (who see it, who deliverd it).
+
+the best senario from my point of view is to use Nosql relation where each chat
+become a doc with its messages and interactive users on it, but for our design
+as we use sql it can also be handeled by creating a chat table that has many
+relation to messages table and chat and user-messages table, but why ?
+
+imagine that messages is related to chat directly and there are agroup of users
+for example 1000 user and someone from these users wrote a message so the
+message recored will be repeated 1000 time (no of users) to just point to which
+user deliver and which is not which will result in a messavie data redundancy in
+DB
+
+so the solution will be
+
+- chat table that only containes id that is used to filterout the messages
+  according to the chat
+- messages table that will contain the message and its typeand chat_id for
+  filtering
+- user_message pivot table to allow many to many relationship between users and
+  all messages that will have the status is it delivered submitted (when user is
+  the owner), read and so on
+
+## So This is the Senario
+
+- In the begining there were no chat histories so for now user will find another
+  user and when create his first message the chat will be created
+- as there chat_id that is not null this allow the user to add messages to this
+  chat
+- when searching for a user (single user not group) we will search it there
+  sinle one to one chat
+-
+- After creating chat histories with some users, user can select directly one of
+  existing chats or find a new user for new chat
+- creating groups will be implemented in the second phase
