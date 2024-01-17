@@ -463,8 +463,8 @@ so the solution will be
     {
         Schema::create('message_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('message_id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('message_id')->constrained()->onDelete('cascade');
             $table->enum('status', ['sent','delivered', 'seen'])->default('delivered');
             $table->timestamps();
         });
@@ -478,7 +478,7 @@ so the solution will be
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chat_id')->constrained();
+            $table->foreignId('chat_id')->constrained()->onDelete('cascade');;
             $table->string('content');
             $table->enum('type', ['text', 'photo', 'audio', 'video', 'document', 'location']);
             $table->timestamps();
@@ -632,4 +632,4 @@ Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->n
 ```
 
 - > php artisan migrate:fresh --seed
--
+- do not forget to add `->onDelete('cascade');` to any forign keys

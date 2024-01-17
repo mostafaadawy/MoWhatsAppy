@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('message_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('message_id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('message_id')->constrained()->onDelete('cascade');
             $table->enum('status', ['sent','waiting','delivered', 'seen'])->default('delivered');
             $table->timestamps();
         });

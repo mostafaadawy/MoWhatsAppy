@@ -27,9 +27,9 @@ Route::get('getAllUsers', [UsersApisController::class,'getAllUsers'])->name('get
 Route::get('checkIfUserExists/{search}', [UsersApisController::class,'checkIfUserExists'])->name('checkIfUserExists');
 Route::post('saveUserDetails', [UsersApisController::class,'saveUserDetails'])->name('saveUserDetails');
 //chat routes
-Route::post('createChat', [ChatController::class,'createChat'])->name('createChat');
+Route::post('createChatSendMessage', [ChatController::class,'createChatSendMessage'])->name('createChatSendMessage');
 Route::post('editMessage', [ChatController::class,'editMessage'])->name('editMessage');
 Route::post('deleteMessage', [ChatController::class,'deleteMessage'])->name('deleteMessage');
-Route::post('sendMessageToChat', [ChatController::class,'sendMessageToChat'])->name('sendMessageToChat');
+Route::post('sendMessageToExistingChat', [ChatController::class,'sendMessageToExistingChat'])->name('sendMessageToExistingChat');
 
 });

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 class ChatController extends Controller
 {
-    public function createChat(Request $request)
+    public function createChatSendMessage(Request $request)
     {
         // Create a new chat
         $chat = Chat::create();
@@ -25,18 +25,20 @@ class ChatController extends Controller
         return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
-    public function sendMessageToChat(Request $request, $chatId)
+    public function sendMessageToExistingChat(Request $request, $chatId)
     {
-        // // Find the chat
-        // $chat = Chat::findOrFail($chatId);
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
 
-        // // Get the authenticated user
-        // $user = Auth::user();
+        // Get the authenticated user
+        $txUser = Auth::user();
+        $rxUser_id= $request->input('rxUser_id');
+        $chat->users()->attach($txUser->id);
+        $chat->users()->attach($rxUser_id);
+        // Send a message to the chat
+        $message = $this->sendMessage($request->input('content'), $chat, $txUser, $rxUser_id);
 
-        // // Send a message to the chat
-        // $message = $this->sendMessage($request->input('content'), $chat, $user);
-
-        // return response()->json(['chat' => $chat, 'message' => $message]);
+        return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
     public function editMessage(Request $request, $messageId)
@@ -83,4 +85,5 @@ class ChatController extends Controller
 
         return $message;
     }
+
 }
