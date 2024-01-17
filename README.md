@@ -668,10 +668,10 @@ class ChatController extends Controller
         return response()->json(['chat' => $chat, 'message' => $message]);
     }
 
-    public function sendMessageToExistingChat(Request $request, $chatId)
+  public function sendMessageToExistingChat(Request $request)
     {
         // Find the chat
-        $chat = Chat::findOrFail($chatId);
+        $chat = Chat::findOrFail($request->input('chatId'));
 
         // Get the authenticated user
         $txUser = Auth::user();
