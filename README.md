@@ -999,4 +999,9 @@ public function deleteMessageforMe($messageId)
 
 - at this point almost all apis required for user and chat and messages are
   ready but we still need other apis
--
+
+## How we can change message status from waiting to delivered then seeen ?
+
+## Other Question is How to notify other users without firebase?
+
+Next Section will Contain the answer
