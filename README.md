@@ -1694,3 +1694,7 @@ class MessageNotificationEvent
 }
 
 ```
+
+- Create a Notification Listener
+- > php artisan make:listener SendMessageNotification
+  > --event=MessageNotificationEvent
