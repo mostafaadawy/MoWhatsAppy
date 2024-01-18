@@ -59,7 +59,20 @@ class ChatController extends Controller
         return response()->json(['message' => $message]);
     }
 
-    public function deleteMessage($messageId)
+    public function deleteMessageforMe($messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('delete', $message);
+
+        // Delete the message
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully']);
+    }
+    public function deleteMessageforAll($messageId)
     {
         // Find the message
         $message = Message::findOrFail($messageId);
@@ -93,7 +106,7 @@ class ChatController extends Controller
     {
         // Find the chat
         $chat = Chat::findOrFail($chatId);
-
+        $this->authorize('delete', $chat);
         // Delete the chat along with its messages
         $chat->messages()->delete();
         $chat->delete();

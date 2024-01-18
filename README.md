@@ -926,3 +926,24 @@ class ChatPolicy
 - now `ownership` field in chat doenot exist so we need to add it to migration
   and migrate and seed then add it to chat fillable, then register the policy in
   the authserviceprovider
+- > php artisan migrate:fresh --seed
+- do not forgot to register again and login to use the token
+- now we are ready to handel the delete method for a chat and as chat cascade on
+  delete it should delte its messages so try it using postman or TDD or thunder
+
+```php
+    public function deleteChat($chatId)
+    {
+        // Find the chat
+        $chat = Chat::findOrFail($chatId);
+        $this->authorize('delete', $chat);
+        // Delete the chat along with its messages
+        $chat->messages()->delete();
+        $chat->delete();
+
+        return response()->json(['message' => 'Chat and messages deleted successfully']);
+    }
+```
+
+- after reg login use token and creating many message we tried chat delete
+-

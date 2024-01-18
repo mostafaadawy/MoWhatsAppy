@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Chat extends Model
 {
     use HasFactory;
-    protected $fillable = ['id']; // Add other fillable fields if needed
+    protected $fillable = ['id', 'ownership']; // Add other fillable fields if needed
 
     public function users()
     {
