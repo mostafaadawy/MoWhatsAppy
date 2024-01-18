@@ -895,3 +895,34 @@ Route::delete('deleteChat/{chatId}', [ChatController::class, 'deleteChat'])->nam
 ```sh
 php artisan make:policy ChatPolicy
 ```
+
+- edit the chat policy
+
+```php
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\Chat;
+
+class ChatPolicy
+{
+    /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+    public function delete(User $user, Chat $chat){
+        return $user->id == $chat->ownership;
+
+    }
+}
+
+```
+
+- now `ownership` field in chat doenot exist so we need to add it to migration
+  and migrate and seed then add it to chat fillable, then register the policy in
+  the authserviceprovider
