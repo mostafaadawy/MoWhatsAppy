@@ -1648,3 +1648,6 @@ class ProcessMessage implements ShouldQueue
 }
 
 ```
+
+- Create a Notification Event
+- > php artisan make:event MessageNotificationEvent
