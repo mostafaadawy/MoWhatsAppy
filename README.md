@@ -948,3 +948,51 @@ class ChatPolicy
 - after reg login use token and creating many message we tried chat delete
 - do not forget registring your policy in `AuthServiceProvider` and in creating
   the chat first time to save the ownership
+- now time to make message delete methods
+
+```php
+public function deleteMessageforMe($messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('delete_for_me', $message);
+
+        // Delete the message
+        $message->users()->updateExistingPivot(Auth::user()->id, ['status' => 'deleted']);
+
+        return response()->json(['message' => 'Message deleted successfully']);
+    }
+    public function deleteMessageforAll($messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('delete_for_all', $message);
+
+        // Delete the message
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully']);
+    }
+
+```
+
+- add next methods to `MessagePolicy`
+
+```php
+    public function delete_for_me(User $user, Message $message)
+    {
+        // Add your authorization logic here
+        // Example: Allow users to update their own messages
+        return $user->id !=null;
+    }
+    public function delete_for_all(User $user, Message $message)
+    {
+        // Add your authorization logic here
+        // Example: Allow users to update their own messages
+        return $user->id == $message->ownership;
+    }
+```

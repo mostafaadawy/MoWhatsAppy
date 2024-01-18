@@ -64,10 +64,10 @@ class ChatController extends Controller
         $message = Message::findOrFail($messageId);
 
         // Check if the authenticated user is the message owner
-        $this->authorize('delete', $message);
+        $this->authorize('delete_for_me', $message);
 
         // Delete the message
-        $message->delete();
+        $message->users()->updateExistingPivot(Auth::user()->id, ['status' => 'deleted']);
 
         return response()->json(['message' => 'Message deleted successfully']);
     }
@@ -77,7 +77,7 @@ class ChatController extends Controller
         $message = Message::findOrFail($messageId);
 
         // Check if the authenticated user is the message owner
-        $this->authorize('delete', $message);
+        $this->authorize('delete_for_all', $message);
 
         // Delete the message
         $message->delete();
