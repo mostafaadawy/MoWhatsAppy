@@ -1528,4 +1528,5 @@ php artisan migrate
   code we can simple create notifiction class that will notify the user by email
   and update database
 - > php artisan make:notification MessageCreatedNotification
--
+- > php artisan notifications:table
+- > php artisan migrate: fresh --seed

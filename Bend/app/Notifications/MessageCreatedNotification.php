@@ -6,17 +6,17 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-
+use App\Models\Message;
 class MessageCreatedNotification extends Notification
 {
     use Queueable;
-
+    public $message;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(Message $message)
     {
-        //
+        $this->message = $message;
     }
 
     /**
@@ -26,18 +26,18 @@ class MessageCreatedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line('A new message has been created.')
+            ->action('View Message', url('/messages/' . $this->message->id))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -49,6 +49,13 @@ class MessageCreatedNotification extends Notification
     {
         return [
             //
+        ];
+    }
+    public function toDatabase($notifiable)
+    {
+        return [
+            'content' => 'A new message has been created.',
+            'message_id' => $this->message->id,
         ];
     }
 }
