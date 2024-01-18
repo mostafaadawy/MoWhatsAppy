@@ -33,7 +33,8 @@ Route::post('sendMessageToExistingChat', [ChatController::class,'sendMessageToEx
 // Edit a message
 Route::put('editMessage/{messageId}', [ChatController::class,'editMessage'])->name('editMessage');
 // Delete a message
-Route::delete('deleteMessage/{messageId}', [ChatController::class, 'deleteMessage'])->name('deleteMessage');
+Route::delete('deleteMessageforMe/{messageId}', [ChatController::class, 'deleteMessageforMe'])->name('deleteMessageforMe');
+Route::delete('deleteMessageforAll/{messageId}', [ChatController::class, 'deleteMessageforAll'])->name('deleteMessageforAll');
 // Delete a chat along with its messages
 Route::delete('deleteChat/{chatId}', [ChatController::class, 'deleteChat'])->name('deleteChat');
 });
