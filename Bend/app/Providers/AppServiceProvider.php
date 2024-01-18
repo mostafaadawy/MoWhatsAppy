@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Providers;
-
+use App\Models\Message;
+use App\Observers\MessageObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,8 +18,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        // Register the MessageObserver for the Message model
+        Message::observe(MessageObserver::class);
     }
 }

@@ -1600,3 +1600,12 @@ class MessageCreatedNotification extends Notification
   call it this job will be called from an observer that keep watching our
   createmesaagae method so lets create the observer
 - > php artisan make:observer MessageObserver --model=Message
+- Register the Observer `app/Providers/AppServiceProvider.php`
+
+```php
+   public function boot()
+    {
+        // Register the MessageObserver for the Message model
+        Message::observe(MessageObserver::class);
+    }
+```
