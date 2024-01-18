@@ -996,3 +996,7 @@ public function deleteMessageforMe($messageId)
         return $user->id == $message->ownership;
     }
 ```
+
+- at this point almost all apis required for user and chat and messages are
+  ready but we still need other apis
+-
