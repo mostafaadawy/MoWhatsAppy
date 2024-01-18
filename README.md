@@ -889,3 +889,9 @@ Route::delete('deleteMessageforAll/{messageId}', [ChatController::class, 'delete
 Route::delete('deleteChat/{chatId}', [ChatController::class, 'deleteChat'])->name('deleteChat');
 });
 ```
+
+- so lets first create the chat policy
+
+```sh
+php artisan make:policy ChatPolicy
+```
