@@ -1494,3 +1494,5 @@ instantly, Laravel Broadcasting is more suitable. Notification for User Actions:
 If you're notifying users about specific events that are not time-sensitive
 (e.g., an email notification for a new message), Laravel Notifications might be
 more appropriate.
+
+# Although we target BroadCasting and Pusher But we will do also Notification just fro clearfying the deference Begining by Notifications and then we will use Broadcast
