@@ -775,3 +775,7 @@ class ChatController extends Controller
   the token
 - do not forget to edit the model `Message` to add in `fillable` the `ownership`
   field
+
+## In order to authorize certain user to do certain action like add update edit and delete on certain table
+
+- create `policy` for that table to till **_which action are allowed for whom_**
