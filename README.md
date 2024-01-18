@@ -1609,3 +1609,6 @@ class MessageCreatedNotification extends Notification
         Message::observe(MessageObserver::class);
     }
 ```
+
+- now lets create the job
+- > php artisan make:job ProcessMessage
