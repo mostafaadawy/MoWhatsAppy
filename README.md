@@ -1616,10 +1616,12 @@ class MessageCreatedNotification extends Notification
 ```php
 <?php
 
+<?php
+
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use App\Events\MessageCreated;
+use App\Events\MessageNotificationEvent;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -1635,7 +1637,7 @@ class ProcessMessage implements ShouldQueue
      */
     public $message;
 
-    public function __construct(MessageCreated $event)
+    public function __construct(MessageNotificationEvent  $event)
     {
         $this->message = $event->message;
     }
@@ -1643,10 +1645,9 @@ class ProcessMessage implements ShouldQueue
     public function handle()
     {
         // Dispatch the event that will notify the user
-        event(new MessageCreatedNotification($this->message));
+        event(new MessageNotificationEvent($this->message));
     }
 }
-
 ```
 
 - Create a Notification Event
