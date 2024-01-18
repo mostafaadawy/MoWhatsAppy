@@ -773,4 +773,5 @@ class ChatController extends Controller
 - also ownership is used to allow only owners of message to edit the message
 - do not forget `php artisan migrate:fresh --seed` then reg and login and use
   the token
--
+- do not forget to edit the model `Message` to add in `fillable` the `ownership`
+  field
