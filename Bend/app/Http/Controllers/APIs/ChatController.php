@@ -47,10 +47,11 @@ class ChatController extends Controller
 
         // Check if the authenticated user is the message owner
         $this->authorize('update', $message);
-        if($message->ownership != Auth::user()->id)
-        {
-            return response()->json(['message' => 'note authorized'])->status(403);
-        }
+        // in case we need to do this authorization action without the policy comment the upper line and uncommint the next code snippet
+        // if($message->ownership != Auth::user()->id)
+        // {
+        //     return response()->json(['message' => 'note authorized'])->status(403);
+        // }
         // Update the message content
         $message->content = $request->input('content');
         $message->save();

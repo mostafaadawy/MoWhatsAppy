@@ -779,3 +779,62 @@ class ChatController extends Controller
 ## In order to authorize certain user to do certain action like add update edit and delete on certain table
 
 - create `policy` for that table to till **_which action are allowed for whom_**
+
+```sh
+php artisan make:policy MessagePolicy
+```
+
+- Define Authorization Logic in MessagePolicy: Open the
+  app/Policies/MessagePolicy.php file and define the authorization logic for
+  updating messages
+- policy is simply return boolean true or false if a condition is met
+
+```php
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\Message;
+class MessagePolicy
+{
+    /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+    public function update(User $user, Message $message)
+    {
+        return $user->id == $message->ownership;
+    }
+}
+
+```
+
+- Register the MessagePolicy: Open the app/Providers/AuthServiceProvider.php
+  file and register the MessagePolicy in the policies array:
+- Use authorize Method in Controller: In your ChatController, you can now use
+  the authorize method:
+
+```php
+    public function editMessage(Request $request, $messageId)
+    {
+        // Find the message
+        $message = Message::findOrFail($messageId);
+
+        // Check if the authenticated user is the message owner
+        $this->authorize('update', $message);
+        // in case we need to do this authorization action without the policy comment the upper line and uncommint the next code snippet
+        // if($message->ownership != Auth::user()->id)
+        // {
+        //     return response()->json(['message' => 'note authorized'])->status(403);
+        // }
+        // Update the message content
+        $message->content = $request->input('content');
+        $message->save();
+
+        return response()->json(['message' => $message]);
+    }
+```
