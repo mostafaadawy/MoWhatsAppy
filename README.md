@@ -1728,3 +1728,5 @@ class SendMessageNotification
     }
 }
 ```
+
+- Register the Listener `app/Providers/EventServiceProvider.php`
