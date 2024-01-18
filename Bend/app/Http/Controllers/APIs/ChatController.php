@@ -18,7 +18,6 @@ class ChatController extends Controller
         $rxUser_id= $request->input('rxUser_id');
         $chat->users()->attach($txUser->id);
         $chat->users()->attach($rxUser_id);
-
         // Send a message to the chat
         $message = $this->sendMessage($request->input('content'), $chat, $txUser, $rxUser_id);
 
@@ -77,6 +76,7 @@ class ChatController extends Controller
     private function sendMessage($content, $chat, $txUser, $rxUser_id)
     {
         $message = new Message([
+            'ownership'=>$txUser->id,
             'content' => $content,
             'type' => 'text', // Assuming it's a text message
         ]);

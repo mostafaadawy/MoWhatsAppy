@@ -9,6 +9,7 @@ class Message extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'ownership',
         'chat_id',
         'content',
         'type'
