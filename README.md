@@ -1454,3 +1454,43 @@ public function handle() {
   updates and simplicity, Redis may be a more straightforward choice. If you
   need advanced messaging capabilities and are working on a larger, distributed
   system, RabbitMQ might be a more suitable option
+
+## Using Laravel's built-in notifications system is another approach
+
+to achieve real-time updates in your application. The difference lies in the way
+notifications are delivered and handled. Here's a brief comparison between using
+notifications and Laravel Broadcasting:
+
+### Using Laravel Broadcasting:
+
+- Real-Time Communication:Broadcasting is designed for real-time communication
+  between the server and connected clients.
+- It's suitable for scenarios where updates need to be pushed to clients
+  immediately without them having to request the changes actively.
+- Push Mechanism: Laravel Echo and broadcasting use a push mechanism to notify
+  clients of updates. Events are broadcasted to channels, and clients (via
+  Laravel Echo) listen for these events.
+- Ease of Implementation Broadcasting is well-suited for scenarios where
+  real-time updates are essential. It requires additional setup, such as
+  configuring a broadcasting driver (like Pusher) and creating events and
+  listeners.
+
+### Using Laravel Notifications: Delayed Delivery:
+
+- Laravel notifications are typically used for sending notifications over
+  various channels (email, SMS, database, etc.). Notifications are often sent as
+  a response to specific actions and may not be delivered in real-time.
+- User-Initiated: Notifications are usually triggered by user actions, such as
+  sending a message, and may not be suitable for real-time updates where instant
+  delivery is critical.
+- Channels Laravel notifications support various channels, including email, SMS,
+  database, etc. It's suitable for scenarios where you want to notify users
+  through multiple channels, not just real-time updates.
+
+### Which to Choose: Real-Time Updates:
+
+If you need real-time updates, such as notifying users about new messages
+instantly, Laravel Broadcasting is more suitable. Notification for User Actions:
+If you're notifying users about specific events that are not time-sensitive
+(e.g., an email notification for a new message), Laravel Notifications might be
+more appropriate.
