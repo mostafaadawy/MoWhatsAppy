@@ -1005,3 +1005,452 @@ public function deleteMessageforMe($messageId)
 ## Other Question is How to notify other users without firebase?
 
 Next Section will Contain the answer
+
+- first when we want to make some notifications for action that happen it can be
+  done simply by laravel noticiation that we will show a code example for it.
+  there are aother techniques for notifications such as using message brooker
+  like laoravel broadcasting and pushers , where b rodcasting an event through
+  channel and the frontend listen to this event. actually redis or rabbit or
+  other message broker is mainly used for microservices integeration and
+  communication but we can use these for our issue also.
+- for more details lets check next section
+
+## Implementing real-time features like message delivery and read receipts
+
+Implementing real-time features like message delivery and read receipts often
+involves using a combination of techniques such as websockets, event
+broadcasting, and possibly a message broker like Redis.
+
+Below is a simplified example using Laravel Echo, Laravel Broadcasting, and
+Pusher for real-time features. Please note that this is just a basic
+illustration, and a production implementation might need additional features and
+security considerations.
+
+- Install Laravel Echo and Pusher: Make sure you have Laravel Echo and Pusher
+  installed.
+- > composer require pusher/pusher-php-server
+- Configure your .env file with Pusher credentials
+- after installing we can find broadcasting.php file
+- Broadcasting Configuration: Update your config/broadcasting.php file:
+
+```php
+'connections' => [
+    'pusher' => [
+        'driver' => 'pusher',
+        'key' => env('PUSHER_APP_KEY'),
+        'secret' => env('PUSHER_APP_SECRET'),
+        'app_id' => env('PUSHER_APP_ID'),
+        'options' => [
+            'cluster' => env('PUSHER_APP_CLUSTER'),
+            'useTLS' => true,
+        ],
+    ],
+],
+
+```
+
+- Event Class: Create an event class for message status updates. Run
+- > php artisan make:event MessageStatusUpdated
+
+```php
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Queue\SerializesModels;
+
+class MessageStatusUpdated implements ShouldBroadcast
+{
+    use SerializesModels;
+
+    public $messageId;
+    public $status;
+
+    public function __construct($messageId, $status)
+    {
+        $this->messageId = $messageId;
+        $this->status = $status;
+    }
+
+    public function broadcastOn()
+    {
+        return new PrivateChannel('message.'.$this->messageId);
+    }
+}
+
+```
+
+- Update ChatController methods to broadcast the message status updates:
+
+```php
+use App\Events\MessageStatusUpdated;
+
+// ...
+
+public function sendMessageToChat(Request $request, $chatId)
+{
+    // ... Your existing code to send a message
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'waiting'))->toOthers();
+
+    return response()->json(['chat' => $chat, 'message' => $message]);
+}
+
+public function deliverMessage(Request $request, $messageId)
+{
+    // ... Your existing code to handle delivering the message
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'delivered'))->toOthers();
+
+    return response()->json(['message' => $message]);
+}
+
+public function seenMessage(Request $request, $messageId)
+{
+    // ... Your existing code to handle marking the message as seen
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'seen'))->toOthers();
+
+    return response()->json(['message' => $message]);
+}
+```
+
+- Listen for Events in Frontend: In your frontend, use Laravel Echo to listen
+  for events and update the UI accordingly
+
+```js
+// Example in a Vue component mounted() { Echo.private('message.' +
+this.messageId) .listen('MessageStatusUpdated', (event) => { // Handle the event
+and update the UI console.log('Message status updated:', event.status); }); }
+```
+
+## more detailed example
+
+a more detailed example with a realistic scenario. We'll implement a simple
+messaging system with real-time features using Laravel Echo, Laravel
+Broadcasting, and Pusher. In this example, we'll focus on updating the message
+status when it's delivered and seen.
+
+- > composer require pusher/pusher-php-server
+- > npm install --save laravel-echo pusher-js
+- Create an account on the Pusher website and obtain your API key, secret, and
+  app ID.
+- Update your .env file:
+
+```js
+BROADCAST_DRIVER = pusher;
+PUSHER_APP_ID = your - app - id;
+PUSHER_APP_KEY = your - app - key;
+PUSHER_APP_SECRET = your - app - secret;
+PUSHER_APP_CLUSTER = your - app - cluster;
+```
+
+- Update config/broadcasting.php
+
+```php
+'pusher' => [
+    'driver' => 'pusher',
+    'key' => env('PUSHER_APP_KEY'),
+    'secret' => env('PUSHER_APP_SECRET'),
+    'app_id' => env('PUSHER_APP_ID'),
+    'options' => [
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'useTLS' => true,
+    ],
+],
+
+```
+
+- Create an Event for Message Status Updates
+- > php artisan make:event MessageStatusUpdated
+
+```php
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Queue\SerializesModels;
+
+class MessageStatusUpdated implements ShouldBroadcast
+{
+    use SerializesModels;
+
+    public $messageId;
+    public $status;
+
+    public function __construct($messageId, $status)
+    {
+        $this->messageId = $messageId;
+        $this->status = $status;
+    }
+
+    public function broadcastOn()
+    {
+        return new PrivateChannel('message.' . $this->messageId);
+    }
+}
+
+```
+
+- Update MessageController:
+
+```php
+use App\Events\MessageStatusUpdated;
+
+public function sendMessage(Request $request)
+{
+    // Validate and save the message
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'waiting'))->toOthers();
+
+    return response()->json(['message' => $message]);
+}
+
+public function deliverMessage($messageId)
+{
+    // Update the message status to 'delivered'
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'delivered'))->toOthers();
+
+    return response()->json(['message' => $message]);
+}
+
+public function seenMessage($messageId)
+{
+    // Update the message status to 'seen'
+
+    // Broadcast the message status update
+    broadcast(new MessageStatusUpdated($message->id, 'seen'))->toOthers();
+
+    return response()->json(['message' => $message]);
+}
+
+```
+
+- Frontend Integration:
+
+```js
+// resources/js/bootstrap.js
+
+import Echo from 'laravel-echo';
+
+window.Pusher = require('pusher-js');
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.MIX_PUSHER_APP_KEY,
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    encrypted: true,
+});
+
+// Example in a Vue component
+mounted() {
+    Echo.private('message.' + this.messageId)
+        .listen('MessageStatusUpdated', (event) => {
+            // Update the UI based on the received event.status
+            console.log('Message status updated:', event.status);
+        });
+}
+
+```
+
+## how to use message broker in this case?
+
+In the context of real-time messaging and notifications, a message broker is
+often used to handle communication between different components of a system.
+Laravel supports various message brokers, and one common choice is Redis. Redis
+is an in-memory data structure store that can be used as a message broker for
+real-time updates. Here are the steps to use Redis as a message broker in the
+context of your Laravel application:
+
+- Install Redis:
+- > composer require predis/predis
+- Configure Laravel to Use Redis: Update your .env
+- > CACHE_DRIVER=redis
+- > BROADCAST_DRIVER=redis 4.
+- Update broadcasting.php Configuration `config/broadcasting.php`configuration
+  file to use the Redis broadcast driver:
+
+```php
+'connections' => [
+    'redis' => [
+        'driver' => 'redis',
+        'connection'=> 'default',
+        ],
+    ]
+```
+
+- Broadcasting Events: In your Laravel application,For example, you can create
+  an event class:
+- > php artisan make:event NewMessage
+- Update the NewMessage event class:
+
+```php
+class NewMessage implements ShouldBroadcast { use
+SerializesModels;
+
+    public $message;
+
+    public function __construct(Message $message)
+    {
+        $this->message = $message;
+    }
+
+    public function broadcastOn()
+    {
+        return new Channel('chat.' . $this->message->chat_id);
+    }
+
+}
+```
+
+- This example assumes you have a Message model with a chat_id column.
+- Broadcasting from Controller: In your controller, you can broadcast the event
+  when a new message is sent:
+
+```php
+use App\Events\NewMessage;
+
+public function sendMessage(Request $request) { // Validate and save the message
+
+    // Broadcast the new message event
+    broadcast(new NewMessage($message));
+
+    return response()->json(['message' => $message]);
+
+}
+```
+
+- Frontend Integration: In your frontend, use Laravel Echo to listen for
+  events:in a Vue component
+
+```js
+mounted() {
+    Echo.channel('chat.' + this.chatId) .listen('NewMessage', (event) => { // Handle
+    the new message event console.log('New message received:', event.message); });
+}
+```
+
+- Broadcasting to Redis: Ensure that your Laravel application is configured to
+  broadcast events to Redis by running:
+- > php artisan queue:listen
+- This command will start the queue worker that will broadcast events to Redis.
+- Test: Send a new message in your application, and you should see the "New
+  message received" log in the console.
+- This setup allows you to broadcast real-time events using Redis as a message
+  broker. Adjust the event classes, channels, and logic based on your specific
+  application requirements.
+- If you have Laravel as the backend and Vue.js separately as the frontend, the
+  real-time messaging and notification system can still be implemented using
+  Laravel Broadcasting for real-time updates and Laravel Notifications for user
+  notifications.
+
+## what will be the deference in code if i used redis and the deference if i used rabbit?
+
+The primary difference between using Redis and RabbitMQ as message brokers lies
+in their design and functionality. Both are powerful tools, but they serve
+different purposes.
+
+- Redis is an in-memory data structure store, often used as a caching mechanism
+  or a message broker for real-time updates. In the context of Laravel
+  Broadcasting, Redis is commonly used to broadcast events to multiple
+  subscribers.
+
+- Laravel Broadcasting with Redis Example: Configure Laravel to Use Redis .env
+  file to use Redis as the broadcasting driver:
+
+```sh
+BROADCAST_DRIVER=redis
+```
+
+- Update Broadcasting Configuration config/broadcasting.php
+
+```php
+'connections' => [
+    'redis' => [
+        'driver' => 'redis',
+        'connection'=> 'default',
+        ],
+        ],
+```
+
+- Broadcast Events using Laravel Broadcasting:
+
+```php
+use Illuminate\Support\Facades\Broadcast;
+// Example: Broadcasting a NewMessage event Broadcast::channel('chat.{chatId}',
+function ($user, $chatId) { return true; // You can add custom logic to
+determine who can listen to the channel });
+```
+
+- Handle Events in Vue.js In your Vue.js frontend, listen for events using
+  Laravel Echo
+
+```js
+  mounted() {
+    Echo.channel('chat.' + this.chatId)
+    .listen('NewMessage', (event) => { // Handle the new message event
+    console.log('New message received:', event.message); // Update your UI to display the new message
+    });
+    }
+```
+
+- RabbitMQ is a message broker that implements the Advanced Message. Queuing
+  Protocol (AMQP). It is designed for distributed systems and supports complex
+  messaging scenarios, including message queuing, routing, and more.
+- Laravel Queues with RabbitMQ Example: Install Required Package Install the
+  required package for Laravel to work with RabbitMQ:
+
+```sh
+composer require vladimir-yuldashev/laravel-queue-rabbitmq
+```
+
+- Configure Laravel to Use RabbitMQ .env file with RabbitMQ connection details:
+
+```sh
+QUEUE_CONNECTION=rabbitmq RABBITMQ_HOST=your-rabbitmq-host
+RABBITMQ_PORT=5672 RABBITMQ_VHOST=your-rabbitmq-vhost
+RABBITMQ_LOGIN=your-rabbitmq-username RABBITMQ_PASSWORD=your-rabbitmq-password
+```
+
+- Queue a Job In your Laravel application, you can use queues to offload tasks
+  to RabbitMQ:
+
+```php
+// Example: Dispatching a job to the RabbitMQ queue dispatch(new
+ProcessNewMessage($message));
+```
+
+- Create a job class that handles the dispatched task:
+
+```sh
+php artisan make:job ProcessNewMessage
+```
+
+- Update the ProcessNewMessage job class:
+
+```php
+public function handle() {
+    // Handle the new message processinglogic
+    // This could include broadcasting events or other tasks
+    }
+```
+
+- Handle Events in Vue.js: If you still want to use Laravel Broadcasting for
+  real-time updates, you can continue to use Laravel Broadcasting with Redis on
+  the frontend.
+
+## Comparison: Redis:
+
+- Easier to set up for real-time updates using Laravel Broadcasting. Suitable
+  for scenarios where real-time communication is a primary concern. Often used
+  for simple use cases where message brokering is needed.
+- RabbitMQ:More complex and powerful message broker designed for distributed
+  systems. Suitable for scenarios where you need advanced queuing, routing, and
+  reliability. Often used in enterprise-level applications with complex
+  messaging requirements. Choose between Redis and RabbitMQ based on the
+  specific requirements of your application. If you primarily need real-time
+  updates and simplicity, Redis may be a more straightforward choice. If you
+  need advanced messaging capabilities and are working on a larger, distributed
+  system, RabbitMQ might be a more suitable option
