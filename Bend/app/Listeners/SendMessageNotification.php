@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Listeners;
-
+use App\Notifications\MessageCreatedNotification;
 use App\Events\MessageNotificationEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
 class SendMessageNotification
-{
+{use InteractsWithQueue;
     /**
      * Create the event listener.
      */
@@ -19,8 +19,9 @@ class SendMessageNotification
     /**
      * Handle the event.
      */
-    public function handle(MessageNotificationEvent $event): void
+    public function handle(MessageNotificationEvent $event)
     {
-        //
+        // Notification logic here, including email and database notifications
+        $event->message->user->notify(new MessageCreatedNotification($event->message));
     }
 }
