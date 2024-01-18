@@ -10,11 +10,10 @@ class ChatController extends Controller
 {
     public function createChatSendMessage(Request $request)
     {
-        // Create a new chat
-        $chat = Chat::create();
-
         // Add the authenticated user to the chat
         $txUser = Auth::user();
+        // Create a new chat
+        $chat = Chat::create(['ownership'=>$txUser->id]);
         $rxUser_id= $request->input('rxUser_id');
         $chat->users()->attach($txUser->id);
         $chat->users()->attach($rxUser_id);

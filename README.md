@@ -946,4 +946,5 @@ class ChatPolicy
 ```
 
 - after reg login use token and creating many message we tried chat delete
--
+- do not forget registring your policy in `AuthServiceProvider` and in creating
+  the chat first time to save the ownership
