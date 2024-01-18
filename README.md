@@ -1496,3 +1496,36 @@ If you're notifying users about specific events that are not time-sensitive
 more appropriate.
 
 # Although we target BroadCasting and Pusher But we will do also Notification just fro clearfying the deference Begining by Notifications and then we will use Broadcast
+
+- First we need to configutre the QUeue Driver that will be used to save
+  notifications jobs as we need to make notifications in the background to not
+  affect the dataflow and performance of our frontend when we build it
+- we can use many tech such as Database itself or we can use redis for the same
+  purpose where redis is also db or store server
+- in `.env`
+
+```sh
+QUEUE_CONNECTION=database
+```
+
+- note that if we dierectly allow notification we may suffer in bad performance
+  in the frontend so we will do this notification in the background using queues
+  and jobs for that issue we need to create the required tables where we will
+  send notification through email and through DB
+  - > QUEUE_CONNECTION=database
+  - chancing it from `sync` to `database` where sync done through the same
+    process but in bg but this may result in low performance because it is not
+    totaly decoupled so we will use database insteade
+  - create the required tables
+
+```sh
+php artisan queue:table
+php artisan migrate
+```
+
+- this command will create jobs table in database and migrate it to the database
+- then in order to handle notification we can use many methods but fro clean
+  code we can simple create notifiction class that will notify the user by email
+  and update database
+- > php artisan make:notification MessageCreatedNotification
+-
